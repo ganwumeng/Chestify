@@ -22,12 +22,14 @@ public final class ChestifyClient implements ClientModInitializer {
             if (screen instanceof AbstractContainerScreen<?>) {
                 ChestifyOverlay.onContainerScreenOpened();
                 Screens.getWidgets(screen).add(ChestifyOverlay.createSearchBox(client, scaledWidth, scaledHeight));
-                ScreenEvents.beforeExtract(screen).register((currentScreen, graphics, mouseX, mouseY, tickDelta) ->
-                        ChestifyOverlay.layoutSearchBox(currentScreen.width, currentScreen.height));
+                ScreenEvents.afterBackground(screen).register((currentScreen, graphics, mouseX, mouseY, tickDelta) ->
+                        ChestifyOverlay.extractPanel(graphics, currentScreen.width, currentScreen.height, mouseX, mouseY));
                 ScreenEvents.afterExtract(screen).register((currentScreen, graphics, mouseX, mouseY, tickDelta) ->
-                        ChestifyOverlay.extract(graphics, currentScreen.width, currentScreen.height, mouseX, mouseY));
+                        ChestifyOverlay.extractTooltip(graphics, currentScreen.width, currentScreen.height, mouseX, mouseY));
                 ScreenMouseEvents.allowMouseClick(screen).register((currentScreen, event) ->
                         !ChestifyOverlay.mouseClicked(currentScreen.width, currentScreen.height, event.x(), event.y(), event.button()));
+                ScreenMouseEvents.allowMouseScroll(screen).register((currentScreen, mouseX, mouseY, horizontalAmount, verticalAmount) ->
+                        !ChestifyOverlay.mouseScrolled(currentScreen.width, currentScreen.height, mouseX, mouseY, verticalAmount));
             }
         });
     }

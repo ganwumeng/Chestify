@@ -41,7 +41,7 @@ public final class ChestifyOverlay {
     private ChestifyOverlay() {
     }
 
-    public static void extract(GuiGraphicsExtractor graphics, int screenWidth, int screenHeight, int mouseX, int mouseY) {
+    public static void extractPanel(GuiGraphicsExtractor graphics, int screenWidth, int screenHeight, int mouseX, int mouseY) {
         Minecraft client = Minecraft.getInstance();
         restoreMousePosition(client);
 
@@ -66,7 +66,6 @@ public final class ChestifyOverlay {
 
         int start = page * ITEMS_PER_PAGE;
         int end = Math.min(chests.size(), start + ITEMS_PER_PAGE);
-        ItemStack hoveredIcon = ItemStack.EMPTY;
         for (int i = start; i < end; i++) {
             int local = i - start;
             int cellX = x + PADDING + (local % COLUMNS) * CELL;
@@ -81,10 +80,6 @@ public final class ChestifyOverlay {
             ItemStack icon = chest.icon();
             graphics.item(icon, cellX + 1, cellY + 1);
             graphics.itemDecorations(client.font, icon, cellX + 1, cellY + 1);
-
-            if (hovered) {
-                hoveredIcon = icon;
-            }
         }
 
         if (chests.isEmpty()) {
@@ -92,10 +87,12 @@ public final class ChestifyOverlay {
             int emptyX = x + (PANEL_WIDTH - client.font.width(empty)) / 2;
             graphics.text(client.font, empty, emptyX, y + PADDING + HEADER_HEIGHT + SEARCH_HEIGHT + 6, 0xFFB0B0B0, false);
         }
+    }
 
+    public static void extractTooltip(GuiGraphicsExtractor graphics, int screenWidth, int screenHeight, int mouseX, int mouseY) {
+        ItemStack hoveredIcon = hoveredIcon(screenWidth, screenHeight, mouseX, mouseY);
         if (!hoveredIcon.isEmpty()) {
-            graphics.nextStratum();
-            drawItemTooltip(graphics, client, hoveredIcon, mouseX, mouseY);
+            drawItemTooltip(graphics, Minecraft.getInstance(), hoveredIcon, mouseX, mouseY);
         }
     }
 
@@ -159,6 +156,25 @@ public final class ChestifyOverlay {
         return false;
     }
 
+    public static boolean mouseScrolled(int screenWidth, int screenHeight, double mouseX, double mouseY, double verticalAmount) {
+        if (!isInsidePanel(mouseX, mouseY, screenWidth, screenHeight)) {
+            return false;
+        }
+
+        int totalPages = totalPages();
+        if (verticalAmount > 0.0D && page > 0) {
+            page--;
+            return true;
+        }
+
+        if (verticalAmount < 0.0D && page < totalPages - 1) {
+            page++;
+            return true;
+        }
+
+        return totalPages > 1;
+    }
+
     public static void onContainerScreenOpened() {
         if (System.currentTimeMillis() < restoreMouseUntilMillis) {
             restoreMouseUntilMillis = System.currentTimeMillis() + 1200L;
@@ -203,6 +219,12 @@ public final class ChestifyOverlay {
         return mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + height;
     }
 
+    private static boolean isInsidePanel(double mouseX, double mouseY, int screenWidth, int screenHeight) {
+        int x = 4;
+        int y = Math.max(4, (screenHeight - PANEL_HEIGHT) / 2);
+        return isInside(mouseX, mouseY, x, y, PANEL_WIDTH, PANEL_HEIGHT);
+    }
+
     private static List<MarkedChest> filterChests(List<MarkedChest> chests) {
         String query = searchText();
         if (query.isEmpty()) {
@@ -239,6 +261,34 @@ public final class ChestifyOverlay {
 
     private static String normalize(String value) {
         return value.trim().toLowerCase(Locale.ROOT);
+    }
+
+    private static int totalPages() {
+        List<MarkedChest> chests = filterChests(SCANNER.getMarkedChests(Minecraft.getInstance()));
+        return Math.max(1, (chests.size() + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE);
+    }
+
+    private static ItemStack hoveredIcon(int screenWidth, int screenHeight, int mouseX, int mouseY) {
+        List<MarkedChest> chests = filterChests(SCANNER.getMarkedChests(Minecraft.getInstance()));
+        int totalPages = Math.max(1, (chests.size() + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE);
+        page = clamp(page, 0, totalPages - 1);
+
+        int x = 4;
+        int y = Math.max(4, (screenHeight - PANEL_HEIGHT) / 2);
+        int gridX = x + PADDING;
+        int gridY = y + PADDING + HEADER_HEIGHT + SEARCH_HEIGHT;
+        if (!isInside(mouseX, mouseY, gridX, gridY, COLUMNS * CELL, ROWS * CELL)) {
+            return ItemStack.EMPTY;
+        }
+
+        int col = (mouseX - gridX) / CELL;
+        int row = (mouseY - gridY) / CELL;
+        int index = page * ITEMS_PER_PAGE + row * COLUMNS + col;
+        if (index >= 0 && index < chests.size()) {
+            return chests.get(index).icon();
+        }
+
+        return ItemStack.EMPTY;
     }
 
     private static void drawItemTooltip(GuiGraphicsExtractor graphics, Minecraft client, ItemStack icon, int mouseX, int mouseY) {
