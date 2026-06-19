@@ -12,7 +12,7 @@ import java.util.Properties;
 public final class ChestifyConfig {
     public static final int DEFAULT_SEARCH_RADIUS = 40;
     public static final int MIN_SEARCH_RADIUS = 4;
-    public static final int MAX_SEARCH_RADIUS = 128;
+    public static final int MAX_SEARCH_RADIUS = 256;
 
     private static final Path CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("chestify.properties");
     private static int searchRadius = DEFAULT_SEARCH_RADIUS;
