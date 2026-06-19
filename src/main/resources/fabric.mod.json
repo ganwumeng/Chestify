@@ -6,10 +6,14 @@
   "description": "Shows nearby item-frame-marked chests in container screens and opens them through a server-validated request.",
   "icon": "assets/chestify/icon.png",
   "authors": [
-    "ganwumeng"
+    "Ganwumeng",
+    "woleilei"
   ],
-  "contact": {},
-  "license": "All-Rights-Reserved",
+  "contact": {
+    "homepage": "https://github.com/ganwumeng/Chestify",
+    "issues": "https://github.com/ganwumeng/Chestify/issues"
+  },
+  "license": "MIT",
   "environment": "*",
   "entrypoints": {
     "main": [
