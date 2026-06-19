@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "chestify",
+  "version": "${version}",
+  "name": "Chestify",
+  "description": "Shows nearby item-frame-marked chests in container screens and opens them through a server-validated request.",
+  "icon": "assets/chestify/icon.png",
+  "authors": [
+    "ganwumeng"
+  ],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.ganwumeng.chestify.Chestify"
+    ],
+    "client": [
+      "com.ganwumeng.chestify.client.ChestifyClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.19.2",
+    "minecraft": "~26.1",
+    "java": ">=25",
+    "fabric-api": "*"
+  }
+}

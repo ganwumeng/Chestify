@@ -1,0 +1,9 @@
+.gradle/
+build/
+.jdks/
+
+.DS_Store
+*.log
+
+# Local machine paths for the Minecraft installation.
+gradle.properties

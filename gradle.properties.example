@@ -1,0 +1,6 @@
+minecraft_version=26.1.2
+minecraft_dir=/path/to/your/Minecraft
+minecraft_version_dir=/path/to/your/Minecraft/versions/Fabulously Optimized
+mod_version=0.1.0
+maven_group=com.ganwumeng
+archives_base_name=chestify

@@ -1,0 +1,50 @@
+plugins {
+    id "java"
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
+}
+
+def minecraftDir = file(project.minecraft_dir)
+def versionDir = file("${project.minecraft_version_dir}")
+def processedModsDir = file("${versionDir}/.fabric/processedMods")
+def librariesDir = file("${minecraftDir}/libraries")
+
+dependencies {
+    compileOnly files("${versionDir}/Fabulously Optimized.jar")
+    compileOnly fileTree(processedModsDir) {
+        include "*.jar"
+    }
+    compileOnly fileTree(librariesDir) {
+        include "**/*.jar"
+    }
+}
+
+processResources {
+    inputs.property "version", project.version
+
+    filesMatching("fabric.mod.json") {
+        expand "version": inputs.properties.version
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 25
+    options.encoding = "UTF-8"
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+
+    withSourcesJar()
+}
+
+jar {
+    archiveBaseName.set(project.archives_base_name)
+}
